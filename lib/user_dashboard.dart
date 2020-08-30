@@ -1,7 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pharmacyapp/prescriptions_add.dart';
+import 'package:pharmacyapp/start_page.dart';
 import 'select_order.dart';
 
 
@@ -17,7 +20,7 @@ class Dashboard extends StatelessWidget {
         automaticallyImplyLeading: false,
         actions: <Widget>[
           PopupMenuButton(
-            onSelected: logout,
+            onSelected: (item) { logout(context, item); },
             itemBuilder: (BuildContext context) =>
             [
               PopupMenuItem(
@@ -112,11 +115,14 @@ class Dashboard extends StatelessWidget {
     );
   }
 
-  static Future<String> getUserName() async{
-    return Future.delayed(Duration(seconds: 3), () => "EDITH" );
+  static Future<String> getUserName() async {
+    return (await FirebaseFirestore.instance.collection('users').doc(
+      FirebaseAuth.instance.currentUser.phoneNumber
+    ).get()).get('name');
   }
 
-  void logout(item) {
-    print(item);
+  void logout(BuildContext context, item) async {
+    await FirebaseAuth.instance.signOut();
+    Navigator.pushReplacement(context, MaterialPageRoute( builder: (context) => StartPage() ));
   }
 }

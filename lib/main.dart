@@ -1,14 +1,51 @@
 import 'package:flutter/material.dart';
 import 'start_page.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'user_dashboard.dart';
 
 void main() {
-  runApp(MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(App());
 }
+
+class App extends StatelessWidget {
+  final Future<FirebaseApp> _initialization = Firebase.initializeApp();
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      // Initialize FlutterFire:
+      future: _initialization,
+      builder: (context, snapshot) {
+        // Check for errors
+        if (snapshot.hasError) {
+//          return Center( child: Icon(Icons.error, size: 50.0, color: Colors.red,));
+          print(snapshot.error);
+
+        }
+
+        // Once complete, show your application
+        if (snapshot.connectionState == ConnectionState.done) {
+          return MyApp();
+        }
+
+        // Otherwise, show something whilst waiting for initialization to complete
+        return CircularProgressIndicator();
+      },
+    );
+  }
+}
+
+
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
+
   @override
   Widget build(BuildContext context) {
+    bool signedIn = FirebaseAuth.instance.currentUser != null;
+    print(FirebaseAuth.instance.currentUser);
     return MaterialApp(
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
@@ -29,7 +66,7 @@ class MyApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
 //        brightness: Brightness.dark,
       ),
-      home: StartPage(),
+      home: signedIn ?  Dashboard() : StartPage(),
     );
   }
 }

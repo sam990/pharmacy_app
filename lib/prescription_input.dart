@@ -2,7 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:searchable_dropdown/searchable_dropdown.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'user_dashboard.dart';
+import 'dart:async';
+import 'select_order.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class PrescriptionInputs extends StatefulWidget {
   @override
@@ -11,8 +15,10 @@ class PrescriptionInputs extends StatefulWidget {
 
 class PrescriptionInputsState extends State<PrescriptionInputs> {
 
-  var names = ['Vicodin', 'Synthroid', 'Delasone', 'Amoxil', 'Neurotin', 'Prinivil', 'Lipitor', 'Glucophage', 'Zofran', 'Motrin'];
-  
+  Future<List<Prescription>> futurePres;
+  var nameMap = {};
+  List<DropdownMenuItem> dropdownItems;
+
   List<String> values = [null];
   var totalCount = 1;
   var currState = 0;
@@ -21,49 +27,33 @@ class PrescriptionInputsState extends State<PrescriptionInputs> {
   var desc = ['Save', 'Save', 'Saving'];
 
   @override
+  void initState() {
+    super.initState();
+    futurePres = fetchPrescriptions();
+  }
+
+
+  @override
   Widget build(BuildContext context) {
-    var dropdownItems = names.map((e) => DropdownMenuItem( child: Text(e), value: e, )).toList();
-    List<Widget> children = [];
-
-    for (var i = values.length; i < totalCount; i++) {
-      values.add(null);
-    }
-
-    for (var i = 0; i < totalCount; i++) {
-      children.add(getDropdown(i, dropdownItems, values));
-    }
-
-    children.add(
-      Center (
-        child: RaisedButton.icon(
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(18.0),
-          ),
-          color: Colors.red,
-          icon: Icon(Icons.add, color: Colors.white,),
-          textColor: Colors.white,
-          label: Text('Add More'),
-          onPressed: () {
-            if (currState == 2) {
-              return;
-            }
-
-            this.setState(() {
-              totalCount++;
-              currState = 0;
-            });
-          },
-        ),
-      )
-    );
 
     return Scaffold(
       appBar: AppBar(
         title: Text('Prescription Input'),
         automaticallyImplyLeading: false,
       ),
-      body: ListView(
-        children: children,
+      body: FutureBuilder<List<Prescription>>(
+        future: futurePres,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return ListView(
+              children: buildCompanion(context),
+            );
+          }
+
+          return Center(
+            child: SpinKitChasingDots( color: Colors.black, size: 40.0,),
+          );
+        },
       ),
 
       floatingActionButton: Builder(
@@ -77,13 +67,67 @@ class PrescriptionInputsState extends State<PrescriptionInputs> {
     );
   }
 
-  void handleClick(BuildContext context) {
+  List<Widget> buildCompanion(BuildContext context) {
+    List<Widget> children = [];
+    for (var i = values.length; i < totalCount; i++) {
+      values.add(null);
+    }
+    for (var i = 0; i < totalCount; i++) {
+      children.add(getDropdown(i, dropdownItems, values));
+    }
+    children.add(
+        Center (
+          child: RaisedButton.icon(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(18.0),
+            ),
+            color: Colors.red,
+            icon: Icon(Icons.add, color: Colors.white,),
+            textColor: Colors.white,
+            label: Text('Add More'),
+            onPressed: () {
+              if (currState == 2) {
+                return;
+              }
+
+              this.setState(() {
+                totalCount++;
+                currState = 0;
+              });
+            },
+          ),
+        )
+    );
+    return children;
+  }
+
+  void handleClick(BuildContext context) async {
     if (currState == 2 || currState == 0) {
       return;
     }
 
     this.setState(() { currState = 2; });
-    // go to dashboard here
+
+    try {
+      await savePres();
+      Navigator.pushReplacement(context, MaterialPageRoute( builder: (context) => Dashboard() ));
+    } catch (e) {
+      print(e);
+      this.setState(() {currState = 1;});
+    }
+
+  }
+
+  Future<void> savePres() async {
+    final ref  = FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser.phoneNumber).collection('prescriptions');
+    
+    for (var name in values) {
+      await ref.doc(name).set({
+        'name': name,
+        'restricted' : nameMap[name].restricted,
+        'approved' : false,
+      });
+    }
 
   }
 
@@ -123,4 +167,24 @@ class PrescriptionInputsState extends State<PrescriptionInputs> {
       default: return SpinKitChasingDots(color: Colors.white, size: 20.0,);
     }
   }
+
+  Future<List<Prescription>> fetchPrescriptions() async {
+    var querySnapShot = await FirebaseFirestore.instance.collection('drugs').get();
+
+    List<Prescription> presc = [];
+
+    for (var i in querySnapShot.docs) {
+      presc.add( Prescription(
+        name: i.get('name'),
+        restricted: i.get('restricted'),
+        approved: false,
+      ));
+    }
+
+    nameMap.clear();
+    presc.forEach((element) { nameMap[element.name] = element; });
+    dropdownItems = presc.map((e) => DropdownMenuItem( child: Text(e.name), value: e.name, )).toList();
+    return presc;
+  }
+
 }

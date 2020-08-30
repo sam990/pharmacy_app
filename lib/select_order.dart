@@ -3,6 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'order_verification.dart';
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SelectOrder extends StatefulWidget {
   @override
@@ -12,9 +14,9 @@ class SelectOrder extends StatefulWidget {
 
 class _SelectOrderState extends State<SelectOrder> {
 
-  Future<List<UserPrescriptions>> futurePres;
-  List<UserPrescriptions> pres = [];
-  List<bool> values;
+  Future<List<Prescription>> futurePres;
+  List<Prescription> pres = [];
+  List<bool> values = [];
 
 
   @override
@@ -35,9 +37,10 @@ class _SelectOrderState extends State<SelectOrder> {
       ),
       body: Padding(
         padding: EdgeInsets.only(top: 20.0, left: 10.0, right: 10.0),
-        child: FutureBuilder<List<UserPrescriptions>>(
+        child: FutureBuilder<List<Prescription>>(
           future: futurePres,
           builder: (context, snapshot) {
+            print(snapshot);
             if (snapshot.hasData){
               pres.addAll(snapshot.data);
               List<Widget> children = [];
@@ -104,16 +107,19 @@ class _SelectOrderState extends State<SelectOrder> {
     return false;
   }
 
-  Future<List<UserPrescriptions>> loadPrescriptions() async{
-    List<UserPrescriptions> presc = [
-      UserPrescriptions(name: 'Oxytocin', restricted: false, approved: false),
-      UserPrescriptions(name: 'Lionine', restricted: true, approved: true ),
-      UserPrescriptions(name: 'Botax', restricted: true, approved: false ),
-    ];
+  Future<List<Prescription>> loadPrescriptions() async {
+
+    var querySnapshot = await FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser.phoneNumber).collection('prescriptions').get();
+
+    List<Prescription> presc = querySnapshot.docs.map((e) => Prescription(
+      name: e.get('name'),
+      restricted: e.get('restricted'),
+      approved: e.get('approved'),
+    )).toList();
 
     values = List.filled(presc.length, false);
 
-    return Future.delayed(Duration(seconds: 3), () => presc);
+    return presc;
   }
 
 }
@@ -186,12 +192,12 @@ class CheckItem extends StatelessWidget {
 }
 
 
-class UserPrescriptions {
+class Prescription {
   final String name;
   final bool restricted;
   final bool approved;
 
-  UserPrescriptions(
+  Prescription(
   {
     this.name,
     this.restricted,
