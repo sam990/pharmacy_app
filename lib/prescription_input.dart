@@ -183,7 +183,7 @@ class PrescriptionInputsState extends State<PrescriptionInputs> {
 
     nameMap.clear();
     presc.forEach((element) { nameMap[element.name] = element; });
-    dropdownItems = presc.map((e) => DropdownMenuItem( child: Text(e.name), value: e.name, )).toList();
+    dropdownItems = presc.map((e) => DropdownMenuItem( child: Text(e.name, style: TextStyle(color: e.restricted ? Colors.blue[900] : Colors.black),), value: e.name, )).toList();
     return presc;
   }
 

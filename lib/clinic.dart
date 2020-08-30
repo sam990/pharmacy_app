@@ -28,22 +28,25 @@ class Clinic extends StatelessWidget {
       padding: const EdgeInsets.all(8.0),
       child: Container(
         color: Colors.green[200],
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(this.name, style: TextStyle(fontWeight: FontWeight.bold),),
-            Text(this.city),
-            Text(this.type),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Icon(Icons.call),
-                SizedBox(width : 5.0),
-                Text(this.telephone),
-              ],
-            )
-          ],
+        child: Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(this.name, style: TextStyle(fontWeight: FontWeight.bold),),
+              Text(this.city),
+              Text(this.type),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Icon(Icons.call),
+                  SizedBox(width : 5.0),
+                  Text(this.telephone),
+                ],
+              )
+            ],
+          ),
         ),
       ),
     );

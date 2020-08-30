@@ -63,6 +63,7 @@ class _ClinicPageState extends State<ClinicPage> {
             },
             isExpanded: true,
             value: selectedType,
+            hint: 'Select clinic type',
           ),
         ),
         SizedBox(
@@ -79,8 +80,10 @@ class _ClinicPageState extends State<ClinicPage> {
         future: f,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            return ListView(
-              children: snapshot.data,
+            return Expanded(
+              child: ListView(
+                children: snapshot.data,
+              ),
             );
           }
 
