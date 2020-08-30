@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'login.dart';
 
 
+
 class StartPage extends StatelessWidget {
 
   @override
@@ -69,16 +70,21 @@ class StartPage extends StatelessWidget {
   }
 
   /*void pushData(BuildContext context) async {
-    var rand = Random();
-    final ref = FirebaseFirestore.instance.collection('drugs');
-    names.forEach((element) async {
-      await ref.doc(element).set(
+    final ref = FirebaseFirestore.instance.collection('clinics');
+
+    for (var line in data) {
+      await ref.add(
         {
-          'name' : element,
-          'restricted' : rand.nextDouble() >= 0.6,
+          'name' : line[0],
+          'address' : line[1],
+          'city' : line[2],
+          'telephone' : line[3],
+          'type' : line[4],
+          'latitude' : line[5],
+          'longitude' : line[6],
         }
       );
-    });
+    }
 
     Navigator.push(
         context,

@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pharmacyapp/prescriptions_add.dart';
 import 'package:pharmacyapp/start_page.dart';
 import 'select_order.dart';
+import 'clinic_show.dart';
 
 
 class Dashboard extends StatelessWidget {
@@ -107,6 +108,31 @@ class Dashboard extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(18.0),),
                 color: Colors.blueGrey[700],
+              ),
+            ),
+
+
+            ButtonTheme(
+              minWidth: 200,
+              child: RaisedButton(
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ClinicPage()));
+                },
+                textColor: Colors.white,
+                child: Row (
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    Icon(Icons.healing),
+                    SizedBox(width: 5.0,),
+                    Text('Book Appointment'),
+                  ],
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18.0),),
+                color: Colors.green[700],
               ),
             ),
           ],
