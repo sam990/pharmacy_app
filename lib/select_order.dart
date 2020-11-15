@@ -63,8 +63,41 @@ class _SelectOrderState extends State<SelectOrder> {
                 children.add(SizedBox( height: 10.0 ));
               }
 
-              return ListView(
-                children: children,
+              return Column(
+                mainAxisSize: MainAxisSize.max,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Icon(Icons.album, color: Colors.green[100],),
+                      SizedBox(width: 5.0,),
+                      Text('Unrestricted drug'),
+                    ],
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Icon(Icons.album, color: Colors.blue[100],),
+                      SizedBox(width: 5.0,),
+                      Text('Restricted & Approved'),
+                    ],
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Icon(Icons.album, color: Colors.red[100],),
+                      SizedBox(width: 5.0,),
+                      Text('Restricted & Not Approved'),
+                    ],
+                  ),
+                  SizedBox(height: 10.0,),
+                  Expanded(
+                    child: ListView(
+                      children: children,
+                    ),
+                  ),
+                ],
               );
             }
 

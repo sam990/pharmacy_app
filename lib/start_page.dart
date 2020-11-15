@@ -12,11 +12,15 @@ class StartPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return
       Scaffold(
-//        backgroundColor: Colors.grey[900],
+//        backgroundColor: Colors.grey[400],
         body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
+            Image(image: AssetImage('images/banner.png'), height: 50.0,),
+
+            SizedBox(height: 100.0,),
+
             ButtonTheme(
               minWidth: 200,
               child: RaisedButton(
